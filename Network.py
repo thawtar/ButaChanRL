@@ -10,7 +10,7 @@ class DuelinDQN(torch.nn.Module):
         self.num_hidden_units = network_config.get("num_hidden_units")
         self.n_separtae_units = self.num_hidden_units // 2
         self.num_actions = network_config.get("num_actions")
-        random.seed(network_config.get("seed"))
+        #random.seed(network_config.get("seed"))
         
         # Specify self.layer_sizes which shows the number of nodes in each layer
         # your code here
