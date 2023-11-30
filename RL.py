@@ -8,6 +8,9 @@ from Agent import Agent
 class RL:
     def __init__(self) -> None:
         self.name = "ButaChanRL"
+        self.mean_episode_length = 0
+        self.mean_episode_rew = 0
+        self.steps = 0
         pass
 
     def learn(self,agent,env,agent_parameters,NSTEPS=10000):
