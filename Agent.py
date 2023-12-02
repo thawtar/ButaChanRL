@@ -40,7 +40,7 @@ class Agent:
             self.target_network = DQN(agent_config['network_config']).to(self.device)
         self.target_network.load_state_dict(self.q_network.state_dict())
         
-        self.optimizer = torch.optim.AdamW(self.q_network.parameters(),lr=1e-4)
+        self.step_size = agent_config['step_size']
         self.num_actions = agent_config['network_config']['num_actions']
         self.num_replay = agent_config['num_replay_updates_per_step']
         self.discount = agent_config['gamma']
@@ -56,6 +56,7 @@ class Agent:
         self.last_action = None
         self.sum_rewards = 0
         self.episode_steps = 0
+        self.optimizer = torch.optim.AdamW(self.q_network.parameters(),lr=self.step_size)
 
     def greedy_policy(self,state,epsilon=0.001):
         state = torch.tensor([state],dtype=torch.float32)

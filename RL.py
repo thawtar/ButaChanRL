@@ -7,6 +7,7 @@ from Agent import Agent
 import matplotlib.pyplot as plt
 from Utilities import Utilities
 import random
+import os
 
 class RL:
     def __init__(self) -> None:
@@ -20,11 +21,19 @@ class RL:
         self.episode_lens = []
         self.loss = []
         self.utils = Utilities()
+        self.model_dir = "./models/"
+        
 
     def set_seed(self,seed=1):
         random.seed(seed)
         np.random.seed(seed)
 
+    def set_model_dir(self,name):
+        self.model_dir = name
+
+    def create_model_dir(self):
+        if not os.path.exists(self.model_dir):
+            os.makedirs(self.model_dir)
 
     def visualize_values(self,agent,env,runs=1):
         self.utils.visualize_values(agent,env,runs)
@@ -73,7 +82,7 @@ class RL:
             self.mean_loss = np.average(self.loss)
         print(f"Step:{self.step}, Episode:{num_episodes} Mean_Epi_Len: {self.mean_episode_length:5.2f},Mean_Epi_Rew {self.mean_episode_rew:5.2f}, Loss: {self.mean_loss:5.2f}")
 
-    def learn(self,agent,env,agent_parameters,NSTEPS=10000,visualize=False):
+    def learn(self,agent,env,agent_parameters,NSTEPS=10000,visualize=False,save_best_weights=False):
         epsiode = 1
         epsiodes = []
         
@@ -95,6 +104,7 @@ class RL:
             done = terminated or truncated
             if(self.step%self.output_step==0):
                 self.summarize()
+                print(f"Epsilon {agent.epsilon:>5.3f}")
                 if(visualize):
                     if(len(self.epsiode_rewards)>0):
                         self.plot_live(self.epsiode_rewards)
@@ -102,6 +112,16 @@ class RL:
                 loss = agent.agent_end(reward)
                 #print("Loss length",len(agent.loss))
                 self.loss.append(loss)
+                
+                if(save_best_weights):
+                    self.create_model_dir()
+                    if(len(self.epsiode_rewards)==0):
+                        model_name = self.model_dir+f"model_{self.step}"
+                        self.utils.save_model(agent,model_name)
+                    else:
+                        if(epsiode_reward>max(self.epsiode_rewards)):
+                            model_name = self.model_dir+f"model_{self.step}"
+                            self.utils.save_model(agent,model_name)
                 self.epsiode_rewards.append(epsiode_reward)
                 self.episode_lens.append(episode_len)
                 if(len(self.epsiode_rewards)>=1000):
