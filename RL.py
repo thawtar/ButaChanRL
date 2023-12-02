@@ -79,6 +79,7 @@ class RL:
         
         # prepare agent
         agent.agent_init(agent_parameters)
+        agent.set_epsilon_decay(NSTEPS//2)
         state,info= env.reset() 
         # choose initial action based on agent's results
         action = agent.agent_start(state)
@@ -94,6 +95,9 @@ class RL:
             done = terminated or truncated
             if(self.step%self.output_step==0):
                 self.summarize()
+                if(visualize):
+                    if(len(self.epsiode_rewards)>0):
+                        self.plot_live(self.epsiode_rewards)
             if(done):
                 loss = agent.agent_end(reward)
                 #print("Loss length",len(agent.loss))
@@ -104,9 +108,7 @@ class RL:
                     del self.epsiode_rewards[0]
                     del self.episode_lens[0]
                 epsiode += 1
-                if(visualize):
-                    if(len(self.epsiode_rewards)>0):
-                        self.plot_live(self.epsiode_rewards)
+                
                 # restart next episode
                 state,_= env.reset() 
                 action = agent.agent_start(state)
@@ -138,38 +140,13 @@ class RL:
         std_rew = np.std(epsiode_rewards)
         return (mean_rew,std_rew)   
             
-def run():
-    env = gym.make("CartPole-v1")
-    env.reset(seed=1)
-    n_state = env.observation_space.shape[0]
-    n_actions = env.action_space.n
-
-    agent_parameters = {
-    'network_config': {
-        'state_dim': n_state,
-        'num_hidden_units': 128,
-        'num_actions': n_actions,
-        "dueling": False
-    },
-    'replay_buffer_size': 1_000_000,
-    'minibatch_sz': 32,
-    'num_replay_updates_per_step': 1,
-    'gamma': 0.99,
-    'epsilon': 1,
-    'update_freq':100,
-    'warmup_steps':500,
-    }
-    agent = Agent()
-    rl = RL()
-    rl.set_seed(1)
-    trained_agent = rl.learn(agent,env,agent_parameters,NSTEPS=5000,visualize=False)
-    mean,std=rl.evaluate(trained_agent,env,n_episodes=5)
-    print(f"Mean reward: {mean}, Standard deviation: {std}")
-    
-
 
 def main():
-    run()
+    print("---------------------")
+    print("Welcome to ButaChanRL")
+    print("---------------------")
+    print("Please use this framework from a run.py file")
+    
 
 if __name__=="__main__":
     main()

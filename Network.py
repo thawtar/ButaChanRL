@@ -27,7 +27,7 @@ class DuelinDQN(torch.nn.Module):
 
     def forward(self,x):
         x = torch.nn.functional.relu(self.layer1(x))
-        #x = torch.nn.functional.relu(self.layer2(x))
+        x = torch.nn.functional.relu(self.layer2(x))
         a = torch.nn.functional.relu(self.layer3a(x))
         a = self.layer4a(a)
         

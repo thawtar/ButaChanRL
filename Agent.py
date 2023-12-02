@@ -17,6 +17,9 @@ class Agent:
         self.seed = seed
         #random.seed(self.seed)
     
+    def set_epsilon_decay(self,n_steps=10000):
+        self.eps_decay = 1. - 1./n_steps
+
     def set_device(self,device):
         self.device = device
     
