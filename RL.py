@@ -4,6 +4,7 @@ from tqdm import tqdm
 import gymnasium as gym
 import numpy as np
 from Agent import Agent
+import matplotlib.pyplot as plt
 
 class RL:
     def __init__(self) -> None:
@@ -17,6 +18,34 @@ class RL:
         self.episode_lens = []
         self.loss = []
         
+    def plot_live(data,n_mean=20,plot_start=20):
+        plt.ion()
+        plt.figure(1)
+        plot_data = torch.tensor(data, dtype=torch.float)
+        plt.clf()
+        plt.title('Training...')
+        plt.xlabel('Episode')
+        plt.ylabel('Episode Reward')
+        plt.plot(plot_data.numpy(),"o")
+        # Take 100 episode averages and plot them too
+        if len(plot_data ) >= plot_start:
+            means = plot_data .unfold(0, n_mean, 1).mean(1).view(-1)
+            means = torch.cat((torch.zeros(n_mean), means))
+            plt.plot(means.numpy())
+        plt.pause(0.1)  # pause a bit so that plots are updated
+
+    def plot_validate(data,test_data):
+        plt.ion()
+        plt.figure(1)
+        plot_data = torch.tensor(data, dtype=torch.float)
+        test_data = torch.tensor(test_data,dtype=torch.float32)
+        plt.clf()
+        plt.title('Training...')
+        plt.xlabel('Episode')
+        plt.ylabel('Episode Reward')
+        plt.plot(plot_data.numpy(),"o")
+        plt.plot(test_data.numpy(),"rx")
+        plt.pause(0.1)  # pause a bit so that plots are updated
 
     def summarize(self):
         self.mean_episode_length = np.average(self.episode_lens)
@@ -41,7 +70,6 @@ class RL:
         
         for i in range(1,NSTEPS+1):
             self.step = i
-            #print("Step:",i)
             state,reward,terminated,truncated,info=env.step(action)
             #print(i,state,reward,action,done)
             epsiode_reward += reward
@@ -50,15 +78,12 @@ class RL:
                 self.summarize()
             if(done):
                 agent.agent_end(reward)
-                self.loss.append(agent.get_loss())
-                print("Loss:",agent.get_loss())
                 if(len(self.epsiode_rewards)<1000):
                     self.epsiode_rewards.append(epsiode_reward)
                     self.episode_lens.append(episode_len)
                 epsiode += 1
                 # restart next episode
-                agent.agent_init(agent_parameters)
-                state,info= env.reset() 
+                state,_= env.reset() 
                 action = agent.agent_start(state)
                 done = False
                 epsiode_reward = 0
