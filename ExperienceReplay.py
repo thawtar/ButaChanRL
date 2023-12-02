@@ -11,7 +11,7 @@ class ReplayBuffer:
         """
         self.buffer = []
         self.minibatch_size = minibatch_size
-        random.seed(seed)
+        #random.seed(seed)
         self.max_size = size
 
     def append(self, state, action, reward, terminal, next_state):

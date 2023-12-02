@@ -15,7 +15,7 @@ class Agent:
 
     def set_seed(self,seed=1):
         self.seed = seed
-        random.seed(self.seed)
+        #random.seed(self.seed)
     
     def set_device(self,device):
         self.device = device
@@ -54,8 +54,17 @@ class Agent:
         self.sum_rewards = 0
         self.episode_steps = 0
 
+    def greedy_policy(self,state,epsilon=0.001):
+        state = torch.tensor(state,dtype=torch.float32)
+        a = random.random()
+        if(a>=epsilon):
+            with torch.no_grad():
+                action_values = self.q_network(state)
+            action = torch.argmax(action_values).item()
+        else:
+            action = random.choice(list(range(self.num_actions)))
+        return action
 
-    # Work Required: No.
     def epsilon_greedy_policy(self,state):
         epsilon = np.max([self.epsilon,0.05]) 
         self.epsilon *= self.eps_decay
@@ -84,7 +93,6 @@ class Agent:
         self.last_action = self.epsilon_greedy_policy(self.last_state)
         self.time_step += 1
         return self.last_action
-
 
     def agent_step(self, reward, state):
         """A step taken by the agent.
@@ -127,7 +135,6 @@ class Agent:
         self.time_step += 1
         return action
 
-
     def agent_end(self, reward):
         """Run when the agent terminates.
         Args:
@@ -161,7 +168,6 @@ class Agent:
         self.time_step += 1
     
         return end_loss
-
 
     def agent_message(self, message):
         if message == "get_sum_reward":

@@ -6,6 +6,7 @@ import numpy as np
 from Agent import Agent
 import matplotlib.pyplot as plt
 from Utilities import Utilities
+import random
 
 class RL:
     def __init__(self) -> None:
@@ -20,10 +21,14 @@ class RL:
         self.loss = []
         self.utils = Utilities()
 
+    def set_seed(self,seed=1):
+        random.seed(seed)
+        np.random.seed(seed)
+
+
     def visualize_values(self,agent,env,runs=1):
         self.utils.visualize_values(agent,env,runs)
-
-        
+     
     def plot_live(self,data,n_mean=20,plot_start=20):
         plt.ion()
         plt.figure(1)
@@ -53,6 +58,9 @@ class RL:
         plt.plot(test_data.numpy(),"rx")
         plt.pause(0.1)  # pause a bit so that plots are updated
 
+    def episode_summarize(self,episode,episode_reward):
+        print(f"Episode: {episode}, Reward: {episode_reward}")
+
     def summarize(self):
         self.mean_episode_length = 0
         self.mean_episode_rew = 0
@@ -64,7 +72,6 @@ class RL:
         if(len(self.loss)>0):
             self.mean_loss = np.average(self.loss)
         print(f"Step:{self.step}, Episode:{num_episodes} Mean_Epi_Len: {self.mean_episode_length:5.2f},Mean_Epi_Rew {self.mean_episode_rew:5.2f}, Loss: {self.mean_loss:5.2f}")
-
 
     def learn(self,agent,env,agent_parameters,NSTEPS=10000,visualize=False):
         epsiode = 1
@@ -110,13 +117,30 @@ class RL:
                 action = agent.agent_step(reward,state)
                 episode_len+=1
         return agent
-            
-            
 
-
+    def evaluate(self,agent,env,n_episodes=10,seed=1,visualize=False,eval_espilon=0.001):
+        epsiode_rewards = []
+        for episode in range(1,n_episodes+1):
+            state,info = env.reset()
+            action = agent.greedy_policy(state,eval_espilon)
+            done = False
+            epsiode_reward = 0
+            episode_len = 0
+            while not done:
+                state,reward,terminated,truncated,info=env.step(action)
+                epsiode_reward += reward
+                done = terminated or truncated
+                action = agent.greedy_policy(state,eval_espilon)
+                episode_len += 1
+            epsiode_rewards.append(epsiode_reward)
+            self.episode_summarize(episode,epsiode_reward)
+        mean_rew = np.average(epsiode_rewards)
+        std_rew = np.std(epsiode_rewards)
+        return (mean_rew,std_rew)   
+            
 def run():
     env = gym.make("CartPole-v1")
-    
+    env.reset(seed=1)
     n_state = env.observation_space.shape[0]
     n_actions = env.action_space.n
 
@@ -137,8 +161,11 @@ def run():
     }
     agent = Agent()
     rl = RL()
-    rl.learn(agent,env,agent_parameters,visualize=True)
-
+    rl.set_seed(1)
+    trained_agent = rl.learn(agent,env,agent_parameters,NSTEPS=5000,visualize=False)
+    mean,std=rl.evaluate(trained_agent,env,n_episodes=5)
+    print(f"Mean reward: {mean}, Standard deviation: {std}")
+    
 
 
 def main():
