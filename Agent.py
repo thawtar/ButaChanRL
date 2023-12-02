@@ -58,7 +58,7 @@ class Agent:
         self.episode_steps = 0
 
     def greedy_policy(self,state,epsilon=0.001):
-        state = torch.tensor(state,dtype=torch.float32)
+        state = torch.tensor([state],dtype=torch.float32)
         a = random.random()
         if(a>=epsilon):
             with torch.no_grad():

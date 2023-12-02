@@ -79,7 +79,7 @@ class RL:
         
         # prepare agent
         agent.agent_init(agent_parameters)
-        agent.set_epsilon_decay(NSTEPS//2)
+        #agent.set_epsilon_decay(NSTEPS//2)
         state,info= env.reset() 
         # choose initial action based on agent's results
         action = agent.agent_start(state)

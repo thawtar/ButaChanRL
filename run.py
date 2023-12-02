@@ -27,7 +27,7 @@ def run():
     agent = Agent()
     rl = RL()
     #rl.set_seed(1)
-    trained_agent = rl.learn(agent,env,agent_parameters,NSTEPS=100000,visualize=True)
+    trained_agent = rl.learn(agent,env,agent_parameters,NSTEPS=10000,visualize=True)
     mean,std=rl.evaluate(trained_agent,env,n_episodes=5)
     print(f"Mean reward: {mean}, Standard deviation: {std}")
     
