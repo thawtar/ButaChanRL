@@ -22,7 +22,9 @@ class RL:
         self.loss = []
         self.utils = Utilities()
         self.model_dir = "./models/"
-        
+
+    def set_output_step(self,output_step):
+        self.output_step = output_step
 
     def set_seed(self,seed=1):
         random.seed(seed)
@@ -104,7 +106,7 @@ class RL:
             done = terminated or truncated
             if(self.step%self.output_step==0):
                 self.summarize()
-                print(f"Epsilon {agent.epsilon:>5.3f}")
+                #print(f"Epsilon {agent.epsilon:>5.3f}")
                 if(visualize):
                     if(len(self.epsiode_rewards)>0):
                         self.plot_live(self.epsiode_rewards)
