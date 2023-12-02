@@ -48,8 +48,7 @@ class Agent:
         self.last_action = None
         self.sum_rewards = 0
         self.episode_steps = 0
-        self.visualize = agent_config['visualize']
-        
+
 
     # Work Required: No.
     def epsilon_greedy_policy(self,state):
@@ -138,7 +137,7 @@ class Agent:
 
         # Append new experience to replay buffer
         # Note: look at the replay_buffer append function for the order of arguments
-
+        end_loss = 0
         # your code here
         terminal = True
         self.replay_buffer.append(self.last_state, self.last_action, reward, terminal, state)
@@ -147,6 +146,7 @@ class Agent:
             for _ in range(self.num_replay):
                 experiences = self.replay_buffer.sample()
                 loss = optimize_network(experiences, self.discount, self.optimizer, self.target_network, self.q_network,self.device)
+                end_loss = loss
                 if(len(self.loss)>=self.loss_capacity):
                     del self.loss[0]
                 self.loss.append(loss)
@@ -154,6 +154,8 @@ class Agent:
         if(self.time_step%self.update_freq==0):
             self.update_target_network()
         self.time_step += 1
+    
+        return end_loss
 
 
     def agent_message(self, message):
