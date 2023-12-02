@@ -11,7 +11,12 @@ class Agent:
     def __init__(self):
         self.name = "DQNAgent"
         self.device = None
+        self.seed = 1 # random seed. Later can be changed by using set_seed method
 
+    def set_seed(self,seed=1):
+        self.seed = seed
+        random.seed(self.seed)
+    
     def set_device(self,device):
         self.device = device
     
@@ -19,7 +24,7 @@ class Agent:
         if(self.device==None):
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.replay_buffer = ReplayBuffer(agent_config['replay_buffer_size'],
-                                          agent_config['minibatch_sz'], agent_config.get("seed"))
+                                          agent_config['minibatch_sz'],self.seed)
         self.state_dim = agent_config["network_config"].get("state_dim")
         self.num_hidden_layers = agent_config["network_config"].get("num_hidden_units")
         self.num_actions = agent_config["network_config"].get("num_actions")

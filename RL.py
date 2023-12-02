@@ -79,7 +79,7 @@ class RL:
         epsiode_reward = 0
         episode_len = 0
         
-        for i in range(1,NSTEPS+1):
+        for i in tqdm(range(1,NSTEPS+1)):
             self.step = i
             state,reward,terminated,truncated,info=env.step(action)
             #print(i,state,reward,action,done)
@@ -97,10 +97,8 @@ class RL:
                     del self.epsiode_rewards[0]
                     del self.episode_lens[0]
                 epsiode += 1
-
                 if(visualize):
                     if(len(self.epsiode_rewards)>0):
-                #        print(self.epsiode_rewards)
                         self.plot_live(self.epsiode_rewards)
                 # restart next episode
                 state,_= env.reset() 
@@ -111,39 +109,40 @@ class RL:
             else:
                 action = agent.agent_step(reward,state)
                 episode_len+=1
+        return agent
             
             
 
 
-    def run(self):
-        env = gym.make("CartPole-v1")
-        
-        n_state = env.observation_space.shape[0]
-        n_actions = env.action_space.n
+def run():
+    env = gym.make("CartPole-v1")
+    
+    n_state = env.observation_space.shape[0]
+    n_actions = env.action_space.n
 
-        agent_parameters = {
-        'network_config': {
-            'state_dim': n_state,
-            'num_hidden_units': 128,
-            'num_actions': n_actions,
-            "dueling": False
-        },
-        'replay_buffer_size': 1_000_000,
-        'minibatch_sz': 32,
-        'num_replay_updates_per_step': 20,
-        'gamma': 0.99,
-        'epsilon': 1,
-        'update_freq':1000,
-        'warmup_steps':500,
-        }
-        agent = Agent()
-        self.learn(agent,env,agent_parameters,visualize=False)
+    agent_parameters = {
+    'network_config': {
+        'state_dim': n_state,
+        'num_hidden_units': 128,
+        'num_actions': n_actions,
+        "dueling": False
+    },
+    'replay_buffer_size': 1_000_000,
+    'minibatch_sz': 32,
+    'num_replay_updates_per_step': 1,
+    'gamma': 0.99,
+    'epsilon': 1,
+    'update_freq':100,
+    'warmup_steps':500,
+    }
+    agent = Agent()
+    rl = RL()
+    rl.learn(agent,env,agent_parameters,visualize=True)
 
 
 
 def main():
-    rl = RL()
-    rl.run()
+    run()
 
 if __name__=="__main__":
     main()
