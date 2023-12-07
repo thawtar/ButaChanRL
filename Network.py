@@ -1,6 +1,33 @@
 import torch
 
 
+class ActorCritic(torch.nn.Module):
+    def __init__(self,network_config) -> None:
+        super(ActorCritic,self).__init__()
+        self.state_dim = network_config.get("state_dim")
+        self.num_hidden_units = network_config.get("num_hidden_units")
+        self.num_actions = network_config.get("num_actions")
+
+        self.layer1 = torch.nn.Linear(self.state_dim, self.num_hidden_units)
+        self.layer2 = torch.nn.Linear(self.num_hidden_units,self.num_hidden_units)
+        self.policy_layer = torch.nn.Linear(self.num_hidden_units, self.num_actions)
+        self.value_layer = torch.nn.Linear(self.num_hidden_units,1)
+        self.relu = torch.nn.ReLU()
+        self.softmax = torch.nn.Softmax(dim=-1)
+        self.actor = torch.nn.Sequential(
+            self.layer1,self.relu,self.layer2,self.relu,self.policy_layer,self.softmax
+        )
+        self.critic = torch.nn.Sequential(
+            self.layer1,self.relu,self.layer2,self.relu,self.value_layer
+        )
+
+    def forward(self, x):
+        policy = self.actor(x)
+        value = self.critic(x)
+        return policy,value
+    
+
+
 class DuelinDQN(torch.nn.Module):
     # Work Required: Yes. Fill in the layer_sizes member variable (~1 Line).
     def __init__(self, network_config):
