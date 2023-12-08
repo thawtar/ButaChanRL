@@ -5,14 +5,24 @@ Built on the PyTorch backend, ButaChanRL provides a collection of state-of-the-a
 
 For Continuous action space problems, Continuous and Discrete Actor-Critic algorithms (Vanilla actor-critic, A2C, SAC) are at the development state.
 
-Documentation
+Documentation:
+
 A documentation will be created later for detailed information on ButaChanRL's modules, classes, and methods, refer to the documentation.
 
-Examples
+Examples:
+
 Explore the examples directory for sample scripts demonstrating the use of ButaChanRL with different environments and algorithms.
 ButaChanRL can easily be used with Gymnasium environments like other RL packages.
 
-Contributing
+For the example, you can look at run.py. Just change the "CartPole-v1" to other Discrete Gym environment and you are good to go!
+
+Requirements:
+
+Requirements for ButaChanRL can be installed via pip as follows:
+
+pip install numpy torch matplotlib tqdm gymnasium
+
+Contributing:
 Contributions to ButaChanRL are welcome! Please refer to CONTRIBUTING.md for guidelines on how to contribute.
 
 License:
