@@ -7,9 +7,9 @@ from Network import DuelinDQN, DQN
 from Network import optimize_network
 
 
-class Agent:
+class DQNAgent:
     def __init__(self):
-        self.name = "DQNAgent"
+        self.name = "DQN"
         self.device = None
         self.seed = 1 # random seed. Later can be changed by using set_seed method
 
@@ -56,7 +56,7 @@ class Agent:
         self.last_action = None
         self.sum_rewards = 0
         self.episode_steps = 0
-        self.optimizer = torch.optim.AdamW(self.q_network.parameters(),lr=self.step_size)
+        self.optimizer = torch.optim.Adam(self.q_network.parameters(),lr=self.step_size)
 
     def greedy_policy(self,state,epsilon=0.001):
         state = torch.tensor([state],dtype=torch.float32)

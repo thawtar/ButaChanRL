@@ -15,10 +15,10 @@ class ActorCritic(torch.nn.Module):
         self.relu = torch.nn.ReLU()
         self.softmax = torch.nn.Softmax(dim=-1)
         self.actor = torch.nn.Sequential(
-            self.layer1,self.relu,self.layer2,self.relu,self.policy_layer,self.softmax
+            self.layer1,self.relu,self.policy_layer,self.softmax
         )
         self.critic = torch.nn.Sequential(
-            self.layer1,self.relu,self.layer2,self.relu,self.value_layer
+            self.layer1,self.relu,self.value_layer
         )
 
     def forward(self, x):

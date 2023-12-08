@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 #import gymnasium as gym
 import numpy as np
-#from Agent import Agent
+#from DQNAgent import DQNAgent
 import matplotlib.pyplot as plt
 from Utilities import Utilities
 import random
@@ -100,6 +100,7 @@ class RL:
         
         for i in tqdm(range(1,NSTEPS+1)):
             self.step = i
+            #print(action)
             state,reward,terminated,truncated,info=env.step(action)
             #print(i,state,reward,action,done)
             epsiode_reward += reward

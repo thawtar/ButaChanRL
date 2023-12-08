@@ -7,9 +7,11 @@ from Network import ActorCritic
 from Network import optimize_network
 
 
+
 class ActorCriticAgent:
     def __init__(self):
-        self.name = "DQNAgent"
+        self.name = "ActorCritic"
+        torch.autograd.set_detect_anomaly(True)
         self.device = None
         self.seed = 1 # random seed. Later can be changed by using set_seed method
 
@@ -52,16 +54,20 @@ class ActorCriticAgent:
         self.actor_optimizer = torch.optim.Adam(self.actor_critic_network.actor.parameters(),lr=self.actor_step_size)
         self.critic_optimizer = torch.optim.Adam(self.actor_critic_network.critic.parameters(),lr=self.critic_step_size)
         self.avg_reward = 0
+        self.I = 1
 
     def policy(self,state):
-        state = torch.tensor(state,dtype=torch.float32)
+        #state = torch.tensor(state,dtype=torch.float32)
         
         policy,_ = self.actor_critic_network(state)
-        action = torch.multinomial(policy, 1).item()
-        return action
+        m = torch.distributions.Categorical(policy)
+        action = m.sample()
+        lp = m.log_prob(action)
+        #action = torch.multinomial(policy, 1).item()
+        return action.item(),lp
     
     def value(self,state):
-        state = torch.tensor(state,dtype=torch.float32)
+        #state = torch.tensor(state,dtype=torch.float32)
         _,value = self.actor_critic_network(state)
         return value
 
@@ -77,8 +83,9 @@ class ActorCriticAgent:
         """
         self.sum_rewards = 0
         self.episode_steps = 0
+        self.I = 1
         self.last_state = torch.tensor(np.array([state]),dtype=torch.float32,device=self.device)
-        self.last_action = self.policy(self.last_state)
+        self.last_action,_ = self.policy(self.last_state)
         self.time_step += 1
         return self.last_action
 
@@ -94,12 +101,16 @@ class ActorCriticAgent:
         """
         self.sum_rewards += reward
         self.episode_steps += 1
+        #print(state,reward)
         state = torch.tensor(np.array([state]),dtype=torch.float32,device=self.device)
-        action = self.policy(state)
-        terminal = False
+        action,lp = self.policy(state)
         reward = torch.tensor([reward], dtype=torch.float32)
-        delta = reward - self.avg_reward + self.discount* self.value(state) - self.value(self.last_state)
-        self.avg_reward += self.avg_reward_step_size*delta
+        last_value = self.value(self.last_state)
+        current_value = self.value(state)
+        delta = reward  - self.discount* current_value - last_value
+        delta *= self.I
+        #self.avg_reward += self.avg_reward_step_size*delta
+        
         # update critic
         critic_loss = delta.pow(2)
         self.critic_optimizer.zero_grad()
@@ -107,10 +118,7 @@ class ActorCriticAgent:
         self.critic_optimizer.step()
 
         # update actor
-        policy, _ = self.actor_critic_network(state)
-        action_ = torch.LongTensor([action])
-        selected_prob = policy.gather(1, action_.unsqueeze(1)) # this is the policy
-        actor_loss = -torch.log(selected_prob) * delta.detach()
+        actor_loss = -lp * delta.detach()
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
         self.actor_optimizer.step()
@@ -119,6 +127,7 @@ class ActorCriticAgent:
         self.last_state = state
         self.last_action = action
         self.time_step += 1
+        self.I *= self.discount
         return action
 
     def agent_end(self, reward):
@@ -129,18 +138,14 @@ class ActorCriticAgent:
         """
         self.sum_rewards += reward
         self.episode_steps += 1
-        self.episode_rewards.append(self.sum_rewards)
-        # Set terminal state to an array of zeros
-        state = torch.zeros_like(self.last_state,device=self.device)
-
-        # Append new experience to replay buffer
-        # Note: look at the replay_buffer append function for the order of arguments
-        end_loss = 0
-        # your code here
-        action = self.policy(state)
-        terminal = False
-        delta = reward - self.avg_reward - self.value(self.last_state)
-        self.avg_reward += self.avg_reward_step_size*delta
+        action,lp = self.policy(self.last_state)
+        reward = torch.tensor([reward], dtype=torch.float32)
+        last_value = self.value(self.last_state)
+        
+        delta = reward  - last_value
+        delta *= self.I
+        #self.avg_reward += self.avg_reward_step_size*delta
+        
         # update critic
         critic_loss = delta.pow(2)
         self.critic_optimizer.zero_grad()
@@ -148,12 +153,14 @@ class ActorCriticAgent:
         self.critic_optimizer.step()
 
         # update actor
-        policy, _ = self.actor_critic(state)
-        selected_prob = policy.gather(1, action.unsqueeze(1)) # this is the policy
-        actor_loss = -torch.log(selected_prob) * delta.detach()
+        actor_loss = -lp * delta.detach()
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
         self.actor_optimizer.step()
+        ### END CODE HERE
+        # your code here
+        self.time_step += 1
+        #self.I *= self.discount
     
         return critic_loss.detach().numpy()
 

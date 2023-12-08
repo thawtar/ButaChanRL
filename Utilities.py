@@ -6,11 +6,20 @@ import numpy as np
 
 class Utilities:
     def load_model(self,model,filename="model.weights"):
-        model.target_network.load_state_dict(torch.load(filename))
-        model.q_network.load_state_dict(torch.load(filename))
+        if(model.name == "DQN"):
+            model.target_network.load_state_dict(torch.load(filename))
+            model.q_network.load_state_dict(torch.load(filename))
+        elif(model.name=="ActorCritic"):
+            model.actor_critic_network.load_state_dict(torch.load(filename))
+        else:
+            NotImplementedError()
+
 
     def save_model(self,model,filename="model.weights"):
-        torch.save(model.q_network.state_dict(),filename)
+        if(model.name == "DQN"):
+            torch.save(model.q_network.state_dict(),filename)
+        elif(model.name=="ActorCritic"):
+            torch.save(model.actor_critic_network.state_dict(),filename)
 
 
     def test_agent(self,agent,test_env):
