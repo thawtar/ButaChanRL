@@ -41,6 +41,7 @@ class DQNAgent:
         self.target_network.load_state_dict(self.q_network.state_dict())
         
         self.step_size = agent_config['step_size']
+        self.double_dqn = agent_config['double_dqn']
         self.num_actions = agent_config['network_config']['num_actions']
         self.num_replay = agent_config['num_replay_updates_per_step']
         self.discount = agent_config['gamma']
@@ -120,7 +121,7 @@ class DQNAgent:
             for _ in range(self.num_replay):
                 # Get sample experiences from the replay buffer
                 experiences = self.replay_buffer.sample()
-                loss = optimize_network(experiences, self.discount, self.optimizer, self.target_network, self.q_network,self.device)
+                loss = optimize_network(experiences, self.discount, self.optimizer, self.target_network, self.q_network,self.device,self.double_dqn)
                 if(len(self.loss)>=self.loss_capacity):
                     del self.loss[0]
                 self.loss.append(loss)
@@ -161,7 +162,7 @@ class DQNAgent:
         if self.replay_buffer.size() > self.replay_buffer.minibatch_size:
             for _ in range(self.num_replay):
                 experiences = self.replay_buffer.sample()
-                loss = optimize_network(experiences, self.discount, self.optimizer, self.target_network, self.q_network,self.device)
+                loss = optimize_network(experiences, self.discount, self.optimizer, self.target_network, self.q_network,self.device,self.double_dqn)
                 end_loss = loss
                 if(len(self.loss)>=self.loss_capacity):
                     del self.loss[0]

@@ -15,7 +15,7 @@ def run():
         'state_dim': n_state,
         'num_hidden_units': 128,
         'num_actions': n_actions,
-        "dueling": False
+        "dueling": True
     },
     'replay_buffer_size': 1_000_000,
     'minibatch_sz': 32,
@@ -25,6 +25,7 @@ def run():
     'epsilon': 1,
     'update_freq':100,
     'warmup_steps':500,
+    'double_dqn':False
     }
     agent = DQNAgent()
     #agent = ActorCriticAgent()
