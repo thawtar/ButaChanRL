@@ -75,12 +75,47 @@ class DQN(torch.nn.Module):
         self.layer1 = torch.nn.Linear(self.state_dim, self.num_hidden_units)
         self.layer2 = torch.nn.Linear(self.num_hidden_units,self.num_hidden_units)
         self.layer3 = torch.nn.Linear(self.num_hidden_units, self.num_actions)
+        self.dropout = torch.nn.Dropout(p=0.2)
+        self.layer_norm = torch.nn.LayerNorm(self.num_hidden_units)
+        self.relu = torch.nn.ReLU()
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
-        x = torch.nn.functional.relu(self.layer1(x))
-        x = torch.nn.functional.relu(self.layer2(x))
+        x = self.layer1(x)
+        x = self.dropout(x)
+        x = self.layer_norm(x)
+        x = self.relu(x)
+        x = self.layer2(x)
+        x = self.dropout(x)
+        x = self.layer_norm(x)
+        x = self.relu(x)
+        x = self.layer3(x)
+        return x
+    
+class LSTMDQN(torch.nn.Module):
+    def __init__(self, network_config):
+        super(LSTMDQN, self).__init__()
+        self.state_dim = network_config.get("state_dim")
+        self.num_hidden_units = network_config.get("num_hidden_units")
+        
+        self.num_actions = network_config.get("num_actions")
+        self.lstm_layer = torch.nn.LSTM(self.state_dim, self.num_hidden_units)
+        self.layer1 = torch.nn.Linear(self.state_dim, self.num_hidden_units)
+        self.layer2 = torch.nn.Linear(self.num_hidden_units,self.num_hidden_units)
+        self.layer3 = torch.nn.Linear(self.num_hidden_units, self.num_actions)
+        self.dropout = torch.nn.Dropout(p=0.2)
+        self.layer_norm = torch.nn.LayerNorm(self.num_hidden_units)
+        self.relu = torch.nn.ReLU()
+
+    # Called with either one element to determine next action, or a batch
+    # during optimization. Returns tensor([[left0exp,right0exp]...]).
+    def forward(self, x):
+        x,_ = self.lstm_layer(x)
+        x = self.layer2(x)
+        x = self.dropout(x)
+        x = self.layer_norm(x)
+        x = self.relu(x)
         x = self.layer3(x)
         return x
     

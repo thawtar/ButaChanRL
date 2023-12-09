@@ -3,7 +3,7 @@ import random
 from copy import deepcopy
 import numpy as np
 from ExperienceReplay import ReplayBuffer
-from Network import DuelinDQN, DQN
+from Network import DuelinDQN, DQN, LSTMDQN
 from Network import optimize_network
 
 
@@ -31,13 +31,23 @@ class DQNAgent:
         self.state_dim = agent_config["network_config"].get("state_dim")
         self.num_hidden_layers = agent_config["network_config"].get("num_hidden_units")
         self.num_actions = agent_config["network_config"].get("num_actions")
-        self.dueling = agent_config["network_config"].get("dueling")
-        if(self.dueling):
+        #self.dueling = agent_config["network_config"].get("dueling")
+        self.network_type = agent_config["network_config"].get("network_type")
+        if(self.network_type=="lstm"):
+            self.q_network = LSTMDQN(agent_config['network_config']).to(self.device)
+            self.target_network = LSTMDQN(agent_config['network_config']).to(self.device)
+        elif(self.network_type=="dueling"):
             self.q_network = DuelinDQN(agent_config['network_config']).to(self.device)
             self.target_network = DuelinDQN(agent_config['network_config']).to(self.device)
         else:
             self.q_network = DQN(agent_config['network_config']).to(self.device)
             self.target_network = DQN(agent_config['network_config']).to(self.device)
+        #if(self.dueling):
+        #    self.q_network = DuelinDQN(agent_config['network_config']).to(self.device)
+        #    self.target_network = DuelinDQN(agent_config['network_config']).to(self.device)
+        #else:
+        #    self.q_network = DQN(agent_config['network_config']).to(self.device)
+        #    self.target_network = DQN(agent_config['network_config']).to(self.device)
         self.target_network.load_state_dict(self.q_network.state_dict())
         
         self.step_size = agent_config['step_size']
@@ -57,7 +67,7 @@ class DQNAgent:
         self.last_action = None
         self.sum_rewards = 0
         self.episode_steps = 0
-        self.optimizer = torch.optim.Adam(self.q_network.parameters(),lr=self.step_size)
+        self.optimizer = torch.optim.Adam(self.q_network.parameters(),lr=self.step_size,weight_decay=0.01)
 
     def greedy_policy(self,state,epsilon=0.001):
         state = torch.tensor([state],dtype=torch.float32)

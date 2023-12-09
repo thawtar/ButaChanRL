@@ -22,6 +22,8 @@ class RL:
         self.loss = []
         self.utils = Utilities()
         self.model_dir = "./models/"
+        self.num_episodes = 0
+        self.average_over = 20
 
     def set_output_step(self,output_step):
         self.output_step = output_step
@@ -76,17 +78,20 @@ class RL:
         self.mean_episode_length = 0
         self.mean_episode_rew = 0
         if(len(self.episode_lens)>0):
-            self.mean_episode_length = np.average(self.episode_lens)
-            self.mean_episode_rew = np.average(self.epsiode_rewards)
-        num_episodes = len(self.epsiode_rewards)
+            if(len(self.episode_lens)>self.average_over):
+                self.mean_episode_length = np.average(self.episode_lens[-self.average_over:-1])
+                self.mean_episode_rew = np.average(self.epsiode_rewards[-self.average_over:-1])
+            else:
+                self.mean_episode_length = np.average(self.episode_lens)
+                self.mean_episode_rew = np.average(self.epsiode_rewards)
         self.mean_loss = 0
         if(len(self.loss)>0):
             self.mean_loss = np.average(self.loss)
-        print(f"Step:{self.step}, Episode:{num_episodes} Mean_Epi_Len: {self.mean_episode_length:5.2f},Mean_Epi_Rew {self.mean_episode_rew:5.2f}, Loss: {self.mean_loss:5.2f}")
+        print(f"Step:{self.step}, Episode:{self.num_episodes} Mean_Epi_Len: {self.mean_episode_length:5.2f},Mean_Epi_Rew {self.mean_episode_rew:5.2f}, Loss: {self.mean_loss:5.2f}")
 
     def learn(self,agent,env,agent_parameters,NSTEPS=10000,visualize=False,save_best_weights=False):
         epsiode = 1
-        epsiodes = []
+        
         
         # prepare agent
         agent.agent_init(agent_parameters)
@@ -127,11 +132,8 @@ class RL:
                             self.utils.save_model(agent,model_name)
                 self.epsiode_rewards.append(epsiode_reward)
                 self.episode_lens.append(episode_len)
-                if(len(self.epsiode_rewards)>=1000):
-                    del self.epsiode_rewards[0]
-                    del self.episode_lens[0]
                 epsiode += 1
-                
+                self.num_episodes += 1
                 # restart next episode
                 state,_= env.reset() 
                 action = agent.agent_start(state)
@@ -159,6 +161,8 @@ class RL:
                 episode_len += 1
             epsiode_rewards.append(epsiode_reward)
             self.episode_summarize(episode,epsiode_reward)
+            if(visualize):
+                env.summarize()
         mean_rew = np.average(epsiode_rewards)
         std_rew = np.std(epsiode_rewards)
         return (mean_rew,std_rew)   
