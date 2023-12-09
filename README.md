@@ -16,11 +16,16 @@ ButaChanRL can easily be used with Gymnasium environments like other RL packages
 
 For the example, you can look at run.py. Just change the "CartPole-v1" to other Discrete Gym environment and you are good to go!
 
+![alt text](https://github.com/thawtar/ButaChanRL/blob/master/images/training.png)
+
+
 Requirements:
 
 Requirements for ButaChanRL can be installed via pip as follows:
 
+```
 pip install numpy torch matplotlib tqdm gymnasium
+```
 
 Contributing:
 Contributions to ButaChanRL are welcome! Please refer to CONTRIBUTING.md for guidelines on how to contribute.
