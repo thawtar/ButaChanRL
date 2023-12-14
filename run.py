@@ -32,7 +32,7 @@ def run():
     #agent = ActorCriticAgent()
     rl = RL()
     #rl.set_seed(1)
-    trained_agent = rl.learn(agent,env,agent_parameters,NSTEPS=50_000,visualize=True,save_best_weights=True)
+    trained_agent = rl.learn(agent,env,agent_parameters,NSTEPS=50_000,visualize=True,save_best_weights=False)
     mean,std=rl.evaluate(trained_agent,env,n_episodes=5,visualize=True)
     print(f"Mean reward: {mean}, Standard deviation: {std}")
     
