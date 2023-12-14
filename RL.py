@@ -161,8 +161,8 @@ class RL:
                 episode_len += 1
             epsiode_rewards.append(epsiode_reward)
             self.episode_summarize(episode,epsiode_reward)
-            if(visualize):
-                env.summarize()
+            #if(visualize):
+            #    env.summarize()
         mean_rew = np.average(epsiode_rewards)
         std_rew = np.std(epsiode_rewards)
         return (mean_rew,std_rew)   

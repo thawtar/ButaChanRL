@@ -1,0 +1,6 @@
+torch==2.0.1
+numpy
+matplotlib
+gymnasium==0.28.1
+tqdm
+
