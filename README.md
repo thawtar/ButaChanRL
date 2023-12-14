@@ -26,7 +26,12 @@ Requirements for ButaChanRL can be installed via pip as follows:
 ```
 pip install numpy torch matplotlib tqdm gymnasium
 ```
+(OR)
+Just install via requirement.txt
 
+```
+pip install -r requirements.txt
+```
 Contributing:
 Contributions to ButaChanRL are welcome! Please refer to CONTRIBUTING.md for guidelines on how to contribute.
 
