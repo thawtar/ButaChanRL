@@ -1,8 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
-from tqdm import tqdm
-import gymnasium as gym
 import numpy as np
+
 
 class Utilities:
     def load_model(self,model,filename="model.weights"):

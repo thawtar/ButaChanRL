@@ -128,7 +128,7 @@ class CNNDQN(torch.nn.Module):
         self.conv2 = torch.nn.Conv2d(64,64,4,2)
         self.conv3 = torch.nn.Conv2d(64,64,3,1)
         self.num_actions = network_config.get("num_actions")
-        self.layer1 = torch.nn.Linear(self.state_dim, self.num_hidden_units)
+        self.layer1 = torch.nn.Linear(self.num_hidden_units, self.num_hidden_units)
         self.layer2 = torch.nn.Linear(self.num_hidden_units,self.num_hidden_units)
         self.layer3 = torch.nn.Linear(self.num_hidden_units, self.num_actions)
 
@@ -138,8 +138,9 @@ class CNNDQN(torch.nn.Module):
         x = torch.nn.functional.relu(self.conv1(x))
         x = torch.nn.functional.relu(self.conv2(x))
         x = torch.nn.functional.relu(self.conv3(x))
+        x = torch.flatten(x,1)
         x = torch.nn.functional.relu(self.layer1(x))
-        x = torch.nn.functional.relu(self.layer2(x))
+        #x = torch.nn.functional.relu(self.layer2(x))
         x = self.layer3(x)
         return x
     

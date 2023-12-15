@@ -3,7 +3,7 @@ import random
 from copy import deepcopy
 import numpy as np
 from ExperienceReplay import ReplayBuffer
-from Network import DuelinDQN, DQN, LSTMDQN
+from Network import DuelinDQN, DQN, LSTMDQN, CNNDQN
 from Network import optimize_network
 
 
@@ -39,6 +39,9 @@ class DQNAgent:
         elif(self.network_type=="dueling"):
             self.q_network = DuelinDQN(agent_config['network_config']).to(self.device)
             self.target_network = DuelinDQN(agent_config['network_config']).to(self.device)
+        elif(self.network_type=="cnn"):
+            self.q_network = CNNDQN(agent_config['network_config']).to(self.device)
+            self.target_network = CNNDQN(agent_config['network_config']).to(self.device)
         else:
             self.q_network = DQN(agent_config['network_config']).to(self.device)
             self.target_network = DQN(agent_config['network_config']).to(self.device)
