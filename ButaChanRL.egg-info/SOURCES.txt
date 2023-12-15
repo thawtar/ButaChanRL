@@ -1,8 +1,0 @@
-LICENSE
-README.md
-setup.py
-ButaChanRL.egg-info/PKG-INFO
-ButaChanRL.egg-info/SOURCES.txt
-ButaChanRL.egg-info/dependency_links.txt
-ButaChanRL.egg-info/requires.txt
-ButaChanRL.egg-info/top_level.txt
