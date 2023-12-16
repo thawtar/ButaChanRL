@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='butachanrl',
-    version='0.1.0',
-    packages=["butachanrl"],#find_packages(),
+    version='0.1.1',
+    packages=["butachanrl","examples"],#find_packages(),
 
     author='ThawTar',
     author_email='mr.thaw.tar1990@gmail.com',
@@ -13,7 +13,9 @@ setup(
         'gymnasium==0.28.1',
         'numpy>=1.25.2',
         'pandas==2.0.3',
-        'matplotlib==3.7.2'
+        'matplotlib==3.7.2',
+        'torch==2.0.1',
+        'tqdm'
     ],
 
     #package_data={
