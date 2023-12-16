@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='ButaChanRL',
-    version='0.0.1',
-    packages=find_packages(),
+    name='butachanrl',
+    version='0.1.0',
+    packages=["butachanrl"],#find_packages(),
 
     author='ThawTar',
     author_email='mr.thaw.tar1990@gmail.com',
