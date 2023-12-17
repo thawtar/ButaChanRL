@@ -5,6 +5,19 @@ Built on the PyTorch backend, ButaChanRL provides a collection of state-of-the-a
 
 For Continuous action space problems, Continuous and Discrete Actor-Critic algorithms (Vanilla actor-critic, A2C, SAC) are at the development state.
 
+Installation:
+
+ButaChanRL can be installed by downloading the package and using setup.py as follows
+
+```
+pip install -e .
+```
+
+It can also be download directly from PyPI as follows
+```
+pip install butachanrl
+```
+
 Documentation:
 
 A documentation will be created later for detailed information on ButaChanRL's modules, classes, and methods, refer to the documentation.
