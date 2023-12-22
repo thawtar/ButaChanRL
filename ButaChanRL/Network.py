@@ -171,6 +171,48 @@ def get_td_error_dqn(states, next_states, actions, rewards, discount, terminals,
     q_vec = q_mat[batch_indices,actions]
     return target_vec,q_vec
 
+
+def get_td_error_sarsa(states, next_states, actions, rewards, discount, terminals, target_network, current_q_network):
+    softmax = torch.nn.Softmax()
+    with torch.no_grad():
+        q_next_mat = target_network(next_states)
+        probs = softmax(q_next_mat)
+        #q_max = torch.max(q_next_mat,1)[0]
+    batch_indices = torch.arange(q_next_mat.shape[0])
+    target_vec = rewards+discount*torch.matmul(probs,q_next_mat.T)*(torch.ones_like(terminals)-terminals.unsqueeze(1))
+    q_mat = current_q_network(states)
+    batch_indices = torch.arange(q_mat.shape[0])
+    q_vec = q_mat[batch_indices,actions]
+    return target_vec,q_vec
+
+def optimize_network_sarsa(experiences, discount, optimizer, target_network, current_q_network,device):
+    """
+    Args:
+        experiences (Numpy array): The batch of experiences including the states, actions,
+                                   rewards, terminals, and next_states.
+        discount (float): The discount factor.
+        network (ActionValueNetwork): The latest state of the network that is getting replay updates.
+        current_q (ActionValueNetwork): The fixed network used for computing the targets,
+                                        and particularly, the action-values at the next-states.
+    """
+    # Get states, action, rewards, terminals, and next_states from experiences
+    states, actions, rewards, terminals, next_states = map(list, zip(*experiences))
+    states = torch.concatenate(states)
+    next_states = torch.concatenate(next_states)
+    rewards = torch.tensor(rewards,dtype=torch.float32,device=device)
+    terminals = torch.tensor(terminals,dtype=torch.float32,device=device)
+    batch_size = states.shape[0]
+    # Compute TD error using the get_td_error function
+    # Note that q_vec is a 1D array of shape (batch_size)
+    
+    target_vec,q_vec = get_td_error_sarsa(states, next_states, actions, rewards, discount, terminals, target_network, current_q_network)
+    loss_fun = torch.nn.MSELoss()
+    loss = loss_fun(target_vec,q_vec)
+    optimizer.zero_grad()
+    loss.backward()
+    torch.nn.utils.clip_grad_norm_(target_network.parameters(), 10)
+    optimizer.step()
+    return loss.detach().numpy()
     
 def optimize_network(experiences, discount, optimizer, target_network, current_q_network,device,double_dqn=False):
     """

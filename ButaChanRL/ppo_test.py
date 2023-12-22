@@ -72,10 +72,11 @@ class PPO:
         return dist.log_prob(actions).sum(axis=1)
 
 # Training loop
-def train(env_name='Pendulum-v0', num_episodes=1000):
+def train(env_name='CartPole-v1', num_episodes=1000):
     env = gym.make(env_name)
     state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.shape[0]
+    action_dim = env.action_space.n#shape[0]
+
 
     ppo = PPO(state_dim, action_dim)
 
@@ -103,8 +104,11 @@ def train(env_name='Pendulum-v0', num_episodes=1000):
 
             if done:
                 next_value = 0 if done else ppo.actor_critic(torch.tensor(next_state, dtype=torch.float32))[1].detach().numpy()
-                ppo.update_policy(states, actions, old_probs, rewards, done, next_value)
+                ppo.update_policy(states, actions, old_probs, rewards, done)
+                
                 break
+        total_rewards = np.sum(rewards)
+        print(f"Episode: {episode}, Reward: {total_rewards}")
 
 if __name__ == "__main__":
     train()
