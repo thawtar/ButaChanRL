@@ -2,9 +2,9 @@ import torch
 import random
 from copy import deepcopy
 import numpy as np
-from ExperienceReplay import ReplayBuffer
-from Network import DuelinDQN, DQN, LSTMDQN, CNNDQN
-from Network import optimize_network
+from butachanrl.ExperienceReplay import ReplayBuffer
+from butachanrl.Network import DuelinDQN, DQN, LSTMDQN, CNNDQN
+from butachanrl.Network import optimize_network
 
 
 class DQNAgent:
@@ -73,7 +73,7 @@ class DQNAgent:
         self.optimizer = torch.optim.Adam(self.q_network.parameters(),lr=self.step_size,weight_decay=0.01)
 
     def greedy_policy(self,state,epsilon=0.001):
-        state = torch.tensor([state],dtype=torch.float32)
+        state = torch.tensor([state],dtype=torch.float32,device=self.device)
         a = random.random()
         if(a>=epsilon):
             with torch.no_grad():

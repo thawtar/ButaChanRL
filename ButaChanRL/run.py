@@ -3,6 +3,7 @@ from RL import RL
 from DQNAgent import DQNAgent
 from ActorCriticAgent import ActorCriticAgent
 from SARSAAgent import SARSAAgent
+import torch
 
 def run():
     env = gym.make("CartPole-v1") #TradingEnv(data_file="usdjpy.csv",start_tick=100,end_tick=500,window_length=9,debug=False,pos=False,tech=False)
@@ -21,7 +22,7 @@ def run():
     },
     'replay_buffer_size': 1_000_000,
     'minibatch_sz': 32,
-    'num_replay_updates_per_step': 4,
+    'num_replay_updates_per_step': 1,
     "step_size": 3e-4,
     'gamma': 0.99,
     'epsilon': 1,
@@ -30,6 +31,9 @@ def run():
     'double_dqn':False
     }
     agent = DQNAgent()
+    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cpu")
+    agent.set_device(device=device)
     #agent = SARSAAgent()
     #agent = ActorCriticAgent()
     rl = RL()

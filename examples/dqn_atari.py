@@ -1,8 +1,8 @@
 import gymnasium as gym
-from RL import RL
-from DQNAgent import DQNAgent
+from butachanrl.RL import RL
+from butachanrl.DQNAgent import DQNAgent
 import matplotlib.pyplot as plt
-from preprocess import resize_frame
+from butachanrl.preprocess import resize_frame
 
 def run():
     #env = gym.make("BreakoutNoFrameskip-v4")

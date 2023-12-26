@@ -2,9 +2,9 @@ import torch
 import random
 from copy import deepcopy
 import numpy as np
-from ExperienceReplay import ReplayBuffer
-from Network import ActorCritic
-from Network import optimize_network
+from butachanrl.ExperienceReplay import ReplayBuffer
+from butachanrl.Network import ActorCritic
+from butachanrl.Network import optimize_network
 
 
 

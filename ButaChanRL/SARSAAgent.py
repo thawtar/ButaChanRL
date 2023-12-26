@@ -2,9 +2,9 @@ import torch
 import random
 from copy import deepcopy
 import numpy as np
-from ExperienceReplay import ReplayBuffer
-from Network import DuelinDQN, DQN, LSTMDQN, CNNDQN
-from Network import optimize_network_sarsa
+from butachanrl.ExperienceReplay import ReplayBuffer
+from butachanrl.Network import DuelinDQN, DQN, LSTMDQN, CNNDQN
+from butachanrl.Network import optimize_network_sarsa
 
 
 class SARSAAgent:

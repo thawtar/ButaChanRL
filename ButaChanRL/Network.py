@@ -243,6 +243,6 @@ def optimize_network(experiences, discount, optimizer, target_network, current_q
     loss.backward()
     torch.nn.utils.clip_grad_norm_(target_network.parameters(), 10)
     optimizer.step()
-    return loss.detach().numpy()
+    return loss.detach().cpu().numpy()
 
 

@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 #from DQNAgent import DQNAgent
 import matplotlib.pyplot as plt
-from Utilities import Utilities
+from butachanrl.Utilities import Utilities
 import random
 import os
 
