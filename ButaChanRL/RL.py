@@ -98,6 +98,8 @@ class RL:
         #agent.set_epsilon_decay(NSTEPS//2)
         state,info= env.reset() 
         # choose initial action based on agent's results
+        #state = torch.tensor(state,dtype=torch.float32)
+        #state = torch.unsqueeze(state,0)
         action = agent.agent_start(state)
         done = False
         epsiode_reward = 0
@@ -107,6 +109,9 @@ class RL:
             self.step = i
             #print(action)
             state,reward,terminated,truncated,info=env.step(action)
+            #state = torch.tensor(state,dtype=torch.float32)
+            #state = torch.unsqueeze(state,0)
+            print("State size in learn: ",state.shape)
             #print(i,state,reward,action,done)
             epsiode_reward += reward
             done = terminated or truncated
