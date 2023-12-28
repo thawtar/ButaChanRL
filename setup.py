@@ -4,10 +4,11 @@ setup(
     name='butachanrl',
     version='0.1.3',
     packages=["butachanrl","examples"],#find_packages(),
-
+    description="A simple Reinforcement Learning code with PyTorch",
     author='ThawTar',
     author_email='mr.thaw.tar1990@gmail.com',
     license='MIT',
+
 
     install_requires=[
         'gymnasium>=0.28.1',
