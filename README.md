@@ -5,7 +5,7 @@ Built on the PyTorch backend, ButaChanRL provides a collection of state-of-the-a
 
 For Continuous action space problems, Continuous and Discrete Actor-Critic algorithms (Vanilla actor-critic, A2C, SAC) are at the development state.
 
-Installation:
+# Installation:
 
 ButaChanRL can be installed by downloading the package and using setup.py as follows
 
@@ -18,11 +18,11 @@ It can also be download directly from PyPI as follows
 pip install butachanrl
 ```
 
-Documentation:
+# Documentation:
 
 A documentation will be created later for detailed information on ButaChanRL's modules, classes, and methods, refer to the documentation.
 
-Examples:
+# Examples:
 
 Explore the examples directory for sample scripts demonstrating the use of ButaChanRL with different environments and algorithms.
 ButaChanRL can easily be used with Gymnasium environments like other RL packages.
@@ -79,7 +79,7 @@ print(f"Mean reward: {mean}, Standard deviation: {std}")
 ![alt text](https://github.com/thawtar/ButaChanRL/blob/master/images/training.png)
 
 
-Requirements:
+# Requirements:
 
 Requirements for ButaChanRL can be installed via pip as follows:
 
@@ -95,7 +95,7 @@ pip install -r requirements.txt
 Contributing:
 Contributions to ButaChanRL are welcome! Please refer to CONTRIBUTING.md for guidelines on how to contribute.
 
-License:
+# License:
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 Happy Reinforcement Learning with ButaChanRL! 🐷
