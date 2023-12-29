@@ -29,7 +29,7 @@ ButaChanRL can easily be used with Gymnasium environments like other RL packages
 
 For the example, you can easily create the training code as follows. Just change the "CartPole-v1" to other Discrete Gym environment and you are good to go!
 
-```
+```python
 import gymnasium as gym
 import torch
 # you will need RL and Agent classes
