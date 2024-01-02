@@ -18,17 +18,18 @@ def run():
         'state_dim': n_state,
         'num_hidden_units': 128,
         'num_actions': n_actions,
-        "network_type":"dqn"
+        "network_type":"dueling"
     },
     'replay_buffer_size': 1_000_000,
     'minibatch_sz': 32,
-    'num_replay_updates_per_step': 1,
+    'observation_size':n_state,
+    'num_replay_updates_per_step': 4,
     "step_size": 3e-4,
     'gamma': 0.99,
     'epsilon': 1,
-    'update_freq':1000,
+    'update_freq':500,
     'warmup_steps':500,
-    'double_dqn':False
+    'double_dqn':True
     }
     agent = DQNAgent()
     #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

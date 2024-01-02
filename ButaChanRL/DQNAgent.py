@@ -2,9 +2,9 @@ import torch
 import random
 from copy import deepcopy
 import numpy as np
-from butachanrl.ExperienceReplay import ReplayBuffer
-from butachanrl.Network import DuelinDQN, DQN, LSTMDQN, CNNDQN
-from butachanrl.Network import optimize_network
+from ExperienceReplay import ReplayBuffer
+from Network import DuelinDQN, DQN, LSTMDQN, CNNDQN
+from Network import optimize_network
 
 
 class DQNAgent:
@@ -27,11 +27,12 @@ class DQNAgent:
         if(self.device==None):
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.replay_buffer = ReplayBuffer(agent_config['replay_buffer_size'],
-                                          agent_config['minibatch_sz'],self.seed)
+                                          agent_config['minibatch_sz'],
+                                          agent_config['observation_size'])
         self.state_dim = agent_config["network_config"].get("state_dim")
         self.num_hidden_layers = agent_config["network_config"].get("num_hidden_units")
         self.num_actions = agent_config["network_config"].get("num_actions")
-        #self.dueling = agent_config["network_config"].get("dueling")
+        
         self.network_type = agent_config["network_config"].get("network_type")
         if(self.network_type=="lstm"):
             self.q_network = LSTMDQN(agent_config['network_config']).to(self.device)
@@ -45,12 +46,7 @@ class DQNAgent:
         else:
             self.q_network = DQN(agent_config['network_config']).to(self.device)
             self.target_network = DQN(agent_config['network_config']).to(self.device)
-        #if(self.dueling):
-        #    self.q_network = DuelinDQN(agent_config['network_config']).to(self.device)
-        #    self.target_network = DuelinDQN(agent_config['network_config']).to(self.device)
-        #else:
-        #    self.q_network = DQN(agent_config['network_config']).to(self.device)
-        #    self.target_network = DQN(agent_config['network_config']).to(self.device)
+       
         self.target_network.load_state_dict(self.q_network.state_dict())
         
         self.step_size = agent_config['step_size']
@@ -85,6 +81,7 @@ class DQNAgent:
 
     def epsilon_greedy_policy(self,state):
         epsilon = np.max([self.epsilon,0.05]) 
+        state = torch.tensor([state],dtype=torch.float32,requires_grad=False,device=self.device)
         self.epsilon *= self.eps_decay
         a = random.random()
         if(a>=epsilon):
@@ -107,7 +104,7 @@ class DQNAgent:
         """
         self.sum_rewards = 0
         self.episode_steps = 0
-        self.last_state = torch.tensor(np.array([state]),dtype=torch.float32,device=self.device)
+        self.last_state = state #torch.tensor(np.array([state]),dtype=torch.float32,device=self.device)
         self.last_action = self.epsilon_greedy_policy(self.last_state)
         self.time_step += 1
         return self.last_action
@@ -124,7 +121,7 @@ class DQNAgent:
         """
         self.sum_rewards += reward
         self.episode_steps += 1
-        state = torch.tensor(np.array([state]),dtype=torch.float32,device=self.device)
+        #state = torch.tensor(np.array([state]),dtype=torch.float32,device=self.device)
         action = self.epsilon_greedy_policy(state)
         terminal = False
         self.replay_buffer.append(self.last_state, self.last_action, reward, terminal, state)
@@ -163,7 +160,7 @@ class DQNAgent:
         self.episode_steps += 1
         self.episode_rewards.append(self.sum_rewards)
         # Set terminal state to an array of zeros
-        state = torch.zeros_like(self.last_state,device=self.device)
+        state = np.zeros_like(self.last_state) #torch.zeros_like(self.last_state,device=self.device)
 
         # Append new experience to replay buffer
         # Note: look at the replay_buffer append function for the order of arguments

@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 #from DQNAgent import DQNAgent
 import matplotlib.pyplot as plt
-from butachanrl.Utilities import Utilities
+from Utilities import Utilities
 import random
 import os
 
@@ -111,7 +111,7 @@ class RL:
             state,reward,terminated,truncated,info=env.step(action)
             #state = torch.tensor(state,dtype=torch.float32)
             #state = torch.unsqueeze(state,0)
-            print("State size in learn: ",state.shape)
+            #print("State size in learn: ",state.shape)
             #print(i,state,reward,action,done)
             epsiode_reward += reward
             done = terminated or truncated

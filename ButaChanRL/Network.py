@@ -255,11 +255,24 @@ def optimize_network(experiences, discount, optimizer, target_network, current_q
                                         and particularly, the action-values at the next-states.
     """
     # Get states, action, rewards, terminals, and next_states from experiences
-    states, actions, rewards, terminals, next_states = map(list, zip(*experiences))
-    states = torch.concatenate(states)
-    next_states = torch.concatenate(next_states)
+    states = experiences[0]
+    actions = experiences[1]
+    rewards = experiences[2]
+    terminals = experiences[3]
+    next_states = experiences[4]
+    # numpy arrays to tensors
+    states = torch.tensor(states,dtype=torch.float32,device=device)
+    
+    #print(states.shape)
+    next_states = torch.tensor(next_states,dtype=torch.float32,device=device)
     rewards = torch.tensor(rewards,dtype=torch.float32,device=device)
-    terminals = torch.tensor(terminals,dtype=torch.float32,device=device)
+    terminals = torch.tensor(terminals,dtype=torch.int,device=device)
+    actions = torch.tensor(actions,dtype=torch.int,device=device)
+    #map(list, zip(*experiences))
+    #states = torch.concatenate(states)
+    #next_states = torch.concatenate(next_states)
+    #rewards = torch.tensor(rewards,dtype=torch.float32,device=device)
+    #terminals = torch.tensor(terminals,dtype=torch.float32,device=device)
     batch_size = states.shape[0]
     # Compute TD error using the get_td_error function
     # Note that q_vec is a 1D array of shape (batch_size)
