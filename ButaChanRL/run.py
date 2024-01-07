@@ -18,12 +18,12 @@ def run():
         'state_dim': n_state,
         'num_hidden_units': 128,
         'num_actions': n_actions,
-        "network_type":"dueling"
+        "network_type":"dqn"
     },
     'replay_buffer_size': 1_000_000,
     'minibatch_sz': 32,
     'observation_size':n_state,
-    'num_replay_updates_per_step': 4,
+    'num_replay_updates_per_step': 1,
     "step_size": 3e-4,
     'gamma': 0.99,
     'epsilon': 1,
@@ -32,8 +32,8 @@ def run():
     'double_dqn':True
     }
     agent = DQNAgent()
-    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device = torch.device("cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    #device = torch.device("cpu")
     agent.set_device(device=device)
     #agent = SARSAAgent()
     #agent = ActorCriticAgent()

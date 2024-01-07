@@ -69,7 +69,7 @@ class DQNAgent:
         self.optimizer = torch.optim.Adam(self.q_network.parameters(),lr=self.step_size,weight_decay=0.01)
 
     def greedy_policy(self,state,epsilon=0.001):
-        state = torch.tensor([state],dtype=torch.float32,device=self.device)
+        state = torch.tensor(state,dtype=torch.float32,requires_grad=False,device=self.device)
         a = random.random()
         if(a>=epsilon):
             with torch.no_grad():
