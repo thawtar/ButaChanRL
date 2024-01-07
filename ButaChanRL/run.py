@@ -31,10 +31,10 @@ def run():
     'warmup_steps':500,
     'double_dqn':True
     }
-    agent = DQNAgent()
+    agent = ActorCriticAgent() #DQNAgent()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     #device = torch.device("cpu")
-    agent.set_device(device=device)
+    #agent.set_device(device=device)
     #agent = SARSAAgent()
     #agent = ActorCriticAgent()
     rl = RL()
