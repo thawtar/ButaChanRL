@@ -26,8 +26,7 @@ class A2CAgent:
     def agent_init(self, agent_config):
         if(self.device==None):
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.replay_buffer = ReplayBuffer(agent_config['replay_buffer_size'],
-                                          agent_config['minibatch_sz'],self.seed)
+        
         self.state_dim = agent_config["network_config"].get("state_dim")
         self.num_hidden_layers = agent_config["network_config"].get("num_hidden_units")
         self.num_actions = agent_config["network_config"].get("num_actions")
@@ -39,14 +38,11 @@ class A2CAgent:
         self.critic_step_size =  1e-3 #agent_config['critic_step_size']
         self.avg_reward_step_size = 1e-3
         self.num_actions = agent_config['network_config']['num_actions']
-        self.num_replay = agent_config['num_replay_updates_per_step']
         self.discount = agent_config['gamma']
         self.time_step = 0
-        self.update_freq = agent_config['update_freq']
         self.loss = []
         self.episode_rewards = []
         self.loss_capacity = 5_000
-        self.warmup_steps = agent_config['warmup_steps']
         self.last_state = None
         self.last_action = None
         self.sum_rewards = 0
@@ -61,8 +57,8 @@ class A2CAgent:
         self.next_states = []
         self.terminals = []
 
-
     def select_action(self,state):
+        state = torch.tensor(np.array(state),dtype=torch.float32,device=self.device)
         policy,_ = self.actor_critic_network(state)
         action_probabilities = policy.squeeze().detach().numpy()
         action = np.random.choice(len(action_probabilities), p=action_probabilities)
@@ -96,7 +92,7 @@ class A2CAgent:
         self.sum_rewards = 0
         self.episode_steps = 0
         self.I = 1
-        self.last_state = torch.tensor(np.array([state]),dtype=torch.float32,device=self.device)
+        self.last_state = state #torch.tensor(np.array([state]),dtype=torch.float32,device=self.device)
         self.last_action = self.select_action(state)
         self.time_step += 1
         return self.last_action
@@ -114,6 +110,13 @@ class A2CAgent:
         self.sum_rewards += reward
         self.episode_steps += 1
         action = self.select_action(state)
+        self.states.append(self.last_state)
+        self.actions.append(self.last_action)
+        self.rewards.append(reward)
+        self.terminals.append(False)
+        self.next_states.append(state)
+        self.last_action = action
+        self.last_state = state
         return action
 
     def agent_end(self, reward):
@@ -124,31 +127,67 @@ class A2CAgent:
         """
         self.sum_rewards += reward
         self.episode_steps += 1
-        action,lp = self.policy(self.last_state)
-        reward = torch.tensor([reward], dtype=torch.float32)
-        last_value = self.value(self.last_state)
         
-        delta = reward  - last_value
-        delta *= self.I
-        #self.avg_reward += self.avg_reward_step_size*delta
-        
-        # update critic
-        critic_loss = delta.pow(2)
-        self.critic_optimizer.zero_grad()
-        critic_loss.backward()
-        self.critic_optimizer.step()
+        self.states.append(self.last_state)
+        self.actions.append(self.last_action)
+        self.rewards.append(reward)
+        state = np.zeros_like(self.last_state)
+        self.terminals.append(True)
+        self.next_states.append(state)
+        loss=self.agent_update()
+        return loss
 
-        # update actor
-        actor_loss = -lp * delta.detach()
+    def discount_rewards(self, rewards):
+        # Compute the gamma-discounted rewards over an episode
+        
+        running_add = 0
+        discounted_r = np.zeros_like(rewards)
+        for i in reversed(range(0,len(rewards))):
+            if rewards[i] != 0: # reset the sum, since this was a game boundary (pong specific!)
+                running_add = 0
+            running_add = running_add * self.discount + rewards[i]
+            discounted_r[i] = running_add
+        discounted_r -= np.mean(discounted_r) # normalizing the result
+        discounted_r /= np.std(discounted_r) # divide by standard deviation
+        return discounted_r
+
+    def agent_update(self):
+        #discount_r = self.discount_rewards(self.rewards)
+        #policy,values = self.actor_critic_network(self.states)
+
+        #advantages = discount_r - values
+        states = torch.FloatTensor(self.states)
+        actions = torch.LongTensor(self.actions)
+        rewards = torch.FloatTensor(self.rewards)
+        next_states = torch.FloatTensor(self.next_states)
+        dones = torch.FloatTensor(self.terminals)
+        ones = torch.ones_like(dones)
+
+        # Compute advantages
+        _, next_values = self.actor_critic_network(next_states)
+        advantages = rewards + self.discount * next_values.squeeze() * (ones-dones) - self.actor_critic_network.critic(states).squeeze()
+
+        # Compute critic loss
+        loss_c = torch.nn.MSELoss()
+        critic_loss = loss_c(self.actor_critic_network.critic(states), rewards + self.discount * next_values.squeeze() * (ones-dones))
+
+        # Compute actor loss
+        policy, _ = self.actor_critic_network(states)
+        selected_probs = policy.gather(1, actions.unsqueeze(1))
+        actor_loss = -(torch.log(selected_probs) * advantages.detach()).mean()
+
         self.actor_optimizer.zero_grad()
+        self.critic_optimizer.zero_grad()
         actor_loss.backward()
+        critic_loss.backward()
         self.actor_optimizer.step()
-        ### END CODE HERE
-        # your code here
-        self.time_step += 1
-        #self.I *= self.discount
-    
-        return critic_loss.detach().numpy()
+        self.critic_optimizer.step()
+        # Total loss
+        total_loss = actor_loss + critic_loss
+
+        return total_loss.detach().numpy()
+
+
 
     def agent_message(self, message):
         if message == "get_sum_reward":

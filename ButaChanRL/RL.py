@@ -95,11 +95,8 @@ class RL:
         
         # prepare agent
         agent.agent_init(agent_parameters)
-        #agent.set_epsilon_decay(NSTEPS//2)
         state,info= env.reset() 
         # choose initial action based on agent's results
-        #state = torch.tensor(state,dtype=torch.float32)
-        #state = torch.unsqueeze(state,0)
         action = agent.agent_start(state)
         done = False
         epsiode_reward = 0
@@ -107,25 +104,17 @@ class RL:
         
         for i in tqdm(range(1,NSTEPS+1)):
             self.step = i
-            #print(action)
             state,reward,terminated,truncated,info=env.step(action)
-            #state = torch.tensor(state,dtype=torch.float32)
-            #state = torch.unsqueeze(state,0)
-            #print("State size in learn: ",state.shape)
-            #print(i,state,reward,action,done)
             epsiode_reward += reward
             done = terminated or truncated
             if(self.step%self.output_step==0):
                 self.summarize()
-                #print(f"Epsilon {agent.epsilon:>5.3f}")
                 if(visualize):
                     if(len(self.epsiode_rewards)>0):
                         self.plot_live(self.epsiode_rewards)
             if(done):
                 loss = agent.agent_end(reward)
-                #print("Loss length",len(agent.loss))
                 self.loss.append(loss)
-                
                 if(save_best_weights):
                     self.create_model_dir()
                     if(len(self.epsiode_rewards)==0):
