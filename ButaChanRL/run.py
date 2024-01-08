@@ -2,6 +2,7 @@ import gymnasium as gym
 from RL import RL
 from DQNAgent import DQNAgent
 from ActorCriticAgent import ActorCriticAgent
+from A2CAgent import A2CAgent
 from SARSAAgent import SARSAAgent
 import torch
 
@@ -31,7 +32,8 @@ def run():
     'warmup_steps':500,
     'double_dqn':True
     }
-    agent = ActorCriticAgent() #DQNAgent()
+    #agent = ActorCriticAgent() #DQNAgent()
+    agent = A2CAgent()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     #device = torch.device("cpu")
     #agent.set_device(device=device)
