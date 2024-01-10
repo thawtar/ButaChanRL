@@ -143,8 +143,7 @@ class A2CAgent:
         running_add = 0
         discounted_r = np.zeros_like(rewards)
         for i in reversed(range(0,len(rewards))):
-            if rewards[i] != 0: # reset the sum, since this was a game boundary (pong specific!)
-                running_add = 0
+            
             running_add = running_add * self.discount + rewards[i]
             discounted_r[i] = running_add
         discounted_r -= np.mean(discounted_r) # normalizing the result
@@ -156,20 +155,23 @@ class A2CAgent:
         #policy,values = self.actor_critic_network(self.states)
 
         #advantages = discount_r - values
+        R = self.discount_rewards(self.rewards)
+        R = torch.FloatTensor(R)
         states = torch.FloatTensor(self.states)
         actions = torch.LongTensor(self.actions)
         rewards = torch.FloatTensor(self.rewards)
         next_states = torch.FloatTensor(self.next_states)
         dones = torch.FloatTensor(self.terminals)
         ones = torch.ones_like(dones)
+        
 
         # Compute advantages
         _, next_values = self.actor_critic_network(next_states)
-        advantages = rewards + self.discount * next_values.squeeze() * (ones-dones) - self.actor_critic_network.critic(states).squeeze()
+        advantages = R - self.actor_critic_network.critic(states).detach().squeeze()
 
         # Compute critic loss
         loss_c = torch.nn.MSELoss()
-        critic_loss = loss_c(self.actor_critic_network.critic(states), rewards + self.discount * next_values.squeeze() * (ones-dones))
+        critic_loss = loss_c(R,self.actor_critic_network.critic(states).squeeze())#, rewards + self.discount * next_values.detach().squeeze() * (ones-dones))
 
         # Compute actor loss
         policy, _ = self.actor_critic_network(states)
@@ -182,6 +184,8 @@ class A2CAgent:
         critic_loss.backward()
         self.actor_optimizer.step()
         self.critic_optimizer.step()
+        #print("Actor loss",actor_loss.detach().numpy())
+        #+print("Critic loss",critic_loss.detach().numpy())
         # Total loss
         total_loss = actor_loss + critic_loss
 
